@@ -8,8 +8,11 @@
 # Debe implementar la solución con fuerza bruta y programación dinámica.
 
 #!/usr/bin/env python
+from asyncio import run
+from audioop import reverse
 import sys
 import os.path
+import time
 
 
 class BASH_COLORS:
@@ -43,19 +46,48 @@ def main():
     lines = f.readlines()
     matrix = []
     for line in lines:
-        row = line.strip().split(",")
+        row = [int(item) for item in line.strip().split(",")]
         matrix.append(row)
-
+    # Start exc
+    start_time = time.time()
     if mode == "1":
         # brute force
         runBruteForce(matrix)
     else:
         runDynamic(matrix)
+    print(
+        f'Tiempo de ejecución: {"{:.8f}".format(time.time() - start_time)} segundos.')
+
+
+def greaterArea(row):
+    return row[0]*row[1]
 
 
 def runBruteForce(lines):
+    # the lines format are:
+    # Largo (L), Ancho (W) y Altura (H)
+    # [
+    #     ['2', ' 3', ' 3'],
+    #     ['2', ' 4', ' 4'],
+    #     ['1', ' 1', ' 4']
+    # ]
+    # The order isn't important because you can rotate the item making it match any order you want
+    # easy to manipulate when sorted
+    for items in lines:
+        items.sort()
+
     print(lines)
-    print("Run the brute force algoritm")
+    lines.sort(key=greaterArea, reverse=True)
+    print(lines)
+    # Only edited if the route is better
+    greaterHeight = -1
+    betterStack = []
+
+    # indexKey = 0
+    # while (True):
+    #     # iterate all the array again but ignore the current index
+
+    #     indexKey += 1
 
 
 def runDynamic(lines):
