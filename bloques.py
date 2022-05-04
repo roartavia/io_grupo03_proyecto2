@@ -24,21 +24,21 @@ class BASH_COLORS:
 def main():
 
     if len(sys.argv) <= 1:
-        # display help (?)
+        printHelp()
         return
     if sys.argv[1] == "-h":
-        # display help (?)
+        printHelp()
         return
-    if len(sys.argv) < 2:
+    if len(sys.argv) <= 2:
         # user needs the [algoritm] and [fileinput]
-        # display help (?)
+        printHelp()
         return
 
     mode = sys.argv[1]
     fileName = sys.argv[2]
 
     if not os.path.isfile(fileName):
-        print("File does not exist.")
+        print('File does not exist.')
         return
 
     f = open(fileName, "r")
@@ -48,18 +48,26 @@ def main():
         row = [int(item) for item in line.strip().split(",")]
         matrix.append(row)
     # Start exc
-    start_time = time.time()
+    startTime = time.time()
     if mode == "1":
         # brute force
         runBruteForceFixed(matrix)
     else:
         runDynamic(matrix)
     print(
-        f'{BASH_COLORS.FAIL}Tiempo de ejecución: {"{:.8f}".format(time.time() - start_time)} segundos.{BASH_COLORS.ENDC}')
+        f'{BASH_COLORS.FAIL}Tiempo de ejecución: {"{:.8f}".format(time.time() - startTime)} segundos.{BASH_COLORS.ENDC}\n')
+
+def printHelp():
+    print('\n')
+    print(f'{BASH_COLORS.WARNING}Para ejecutar el programa, debe pasar el archivo con el formato de entrada correcto como parámetro y el algoritmo a usar, 1 para brute force o 2 para DP{BASH_COLORS.ENDC}.')
+    print('Ejemplo:')
+    print('\n')
+    print(f'{BASH_COLORS.OKGREEN}python bloques.py [algoritmo: 1 or 2] filename.txt{BASH_COLORS.ENDC}')
+    print('\n')
 
 def printAnswer(height, stack):
-    print(f'Output: altura máxima {BASH_COLORS.OKGREEN}{height}{BASH_COLORS.ENDC}.')
-    print(f'Bloques: {BASH_COLORS.OKGREEN}{stack}.{BASH_COLORS.ENDC}')
+    print(f'\nOutput: altura máxima {BASH_COLORS.OKGREEN}{height}{BASH_COLORS.ENDC}.')
+    print(f'Bloques: {BASH_COLORS.OKGREEN}{stack}.{BASH_COLORS.ENDC}\n')
 
 def getRotations(block):
     # there are 3 posible diff heights for a block
@@ -200,5 +208,4 @@ def runDynamic(lines):
 # Run the project
 main() 
 
- 
  
