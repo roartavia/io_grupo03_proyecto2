@@ -13,3 +13,4 @@ Proyecto 2: Desempeño de Programación Dinámica
     python bloques.py [-h] [mode] [testCase.txt]
 ```
 [mode]: 1 (brute force) or 2 (dynamic programming)
+##alo
