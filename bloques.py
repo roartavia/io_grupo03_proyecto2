@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # Se tienen una cantidad bloques de madera tridimensionales, cada uno con medida de Largo (L), Ancho (W) y Altura (H).
 # Se deben poner uno encima de otro de manera que se logre hacer la torre más alta posible. Sin embargo un bloque
 # puede ir encima del otro si su base es estrictamente menor que superficie superior del bloque de abajo.
@@ -7,7 +9,6 @@
 
 # Debe implementar la solución con fuerza bruta y programación dinámica.
 
-#!/usr/bin/env python
 import itertools
 import sys
 import os.path
