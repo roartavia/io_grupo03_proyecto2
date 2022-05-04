@@ -16,12 +16,8 @@ import itertools
 import sys
 import os.path
 import time
-
-class BASH_COLORS:
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
+# local helper
+from helper import BASH_COLORS, printHelp
 
 class Articule:
     def __init__(self, key, weight, value):
@@ -35,14 +31,14 @@ class Articule:
 def main():
 
     if len(sys.argv) <= 1:
-        printHelp()
+        printHelp('contenedor')
         return
     if sys.argv[1] == '-h':
-        printHelp()
+        printHelp('contenedor')
         return
     if len(sys.argv) <= 2:
         # user needs the [algoritm] and [fileinput]
-        printHelp()
+        printHelp('contenedor')
         return
 
     mode = sys.argv[1]
@@ -68,21 +64,12 @@ def main():
     print(
         f'{BASH_COLORS.FAIL}Tiempo de ejecución: {"{:.8f}".format(time.time() - startTime)} segundos.{BASH_COLORS.ENDC}\n')
 
-def printHelp():
-    print('\n')
-    print(f'{BASH_COLORS.WARNING}Para ejecutar el programa, debe pasar el archivo con el formato de entrada correcto como parámetro y el algoritmo a usar, 1 para brute force o 2 para DP{BASH_COLORS.ENDC}.')
-    print('Ejemplo:')
-    print('\n')
-    print(f'{BASH_COLORS.OKGREEN}python contenedor.py [algoritmo: 1 or 2] filename.txt{BASH_COLORS.ENDC}')
-    print('\n')
-
 def printAnswer(h, bagStr):
     # Output:
     # Beneficio máximo: 162
     # Incluidos: 3,4,5
     print (f'\nBeneficio máximo: {BASH_COLORS.OKGREEN}{h}{BASH_COLORS.ENDC}.')
     print (f'Incluidos: {BASH_COLORS.OKGREEN}{bagStr}{BASH_COLORS.ENDC}\n')
-
     
 def runBruteForce(lines):
     print('Run brute force')
