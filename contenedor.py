@@ -95,11 +95,10 @@ def runBruteForce(lines):
     articules = []
     for key, item in enumerate(lines[1:]):
         articules.append(Articule(key, weight=item[0], value=item[1]))
-    
-    
+
     permutations = (list(itertools.permutations(articules)))    
     maxValues = []
-    
+
     for per in permutations:
         carryHeight = 0
         carryValue = 0
@@ -114,7 +113,6 @@ def runBruteForce(lines):
             #  make the sum if is valid add it if not then break
         # add the current weight for this per
         maxValues.append(carryValue)
-        
 
     maxValue = max(maxValues)
     idx = maxValues.index(maxValue)
@@ -129,7 +127,6 @@ def runBruteForce(lines):
         else:
             break
     printAnswer(h=maxValue,bagStr=filledBag)
-
 
 def runDynamic(lines):
     print('Run dynamic programming algoritm')
