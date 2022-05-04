@@ -8,8 +8,7 @@
 # Debe implementar la solución con fuerza bruta y programación dinámica.
 
 #!/usr/bin/env python
-from asyncio import run
-from audioop import reverse
+import itertools
 import sys
 import os.path
 import time
@@ -52,48 +51,154 @@ def main():
     start_time = time.time()
     if mode == "1":
         # brute force
-        runBruteForce(matrix)
+        runBruteForceFixed(matrix)
     else:
         runDynamic(matrix)
     print(
-        f'Tiempo de ejecución: {"{:.8f}".format(time.time() - start_time)} segundos.')
+        f'{BASH_COLORS.FAIL}Tiempo de ejecución: {"{:.8f}".format(time.time() - start_time)} segundos.{BASH_COLORS.ENDC}')
+
+def printAnswer(height, stack):
+    print(f'Output: altura máxima {BASH_COLORS.OKGREEN}{height}{BASH_COLORS.ENDC}.')
+    print(f'Bloques: {BASH_COLORS.OKGREEN}{stack}.{BASH_COLORS.ENDC}')
+
+def getRotations(block):
+    # there are 3 posible diff heights for a block
+    rotations = []
+    # TODO: ignore the items that are already in the list
+    rotations.append(block)
+    rotations.append([block[0], block[2], block[1]])
+    rotations.append([block[1], block[2], block[0]])
+    return rotations
 
 
-def greaterArea(row):
-    return row[0]*row[1]
-
+def getAllRotations(blocks):
+    rotations = []
+    for block in blocks:
+        rotations.append(block)
+        # don't use a rotation that is already in the array
+        firstRotation = [max(block[0], block[2]),min(block[0], block[2]), block[1]]
+        if not firstRotation in rotations:
+            rotations.append(firstRotation)
+        secondRotation = [max(block[1], block[2]),min(block[1], block[2]), block[0]]
+        if not secondRotation in rotations:
+            rotations.append(secondRotation)
+ 
+    return rotations
 
 def runBruteForce(lines):
     # the lines format are:
     # Largo (L), Ancho (W) y Altura (H)
     # [
     #     ['2', ' 3', ' 3'],
-    #     ['2', ' 4', ' 4'],
+    #     ['2', ' 4', ' 6'],
     #     ['1', ' 1', ' 4']
     # ]
-    # The order isn't important because you can rotate the item making it match any order you want
-    # easy to manipulate when sorted
-    for items in lines:
-        items.sort()
+    posibles = getAllRotations(lines)
+    # This doesnt reuse the blocks
+    universe = list(itertools.product(*posibles))
+    bestStack = []
+    bestHeight = 0
+    for galaxy in universe:
+        posibleStacks = (list(itertools.permutations(galaxy)))
+        for stack in posibleStacks:
+            # start with the base height
+            currentHeight = stack[0][2]
+            currentStack = [stack[0]]
+            for i in range(0, len(stack) - 1):
+                # add the next block height, the current is already added
+                # if h and w greater then isValid = false and break
+                if (stack[i][0] <= stack[i+1][0] or stack[i][1] <= stack[i+1][1]) and (stack[i][0] <= stack[i+1][1] or stack[i][1] <= stack[i+1][0]):
+                    # TODO: check if one extra rotations is needed for displaying purposes
+                    break
+                # else-  sum the height
+                currentHeight += stack[i + 1][2]                
+                currentStack.append(stack[i + 1])
+            if currentHeight > bestHeight:
+                bestHeight = currentHeight
+                bestStack = currentStack
+    print(
+    f'The best posible stack is: {bestStack} with the height {bestHeight}.')
+    # return [bestStack, bestHeight]
 
-    print(lines)
-    lines.sort(key=greaterArea, reverse=True)
-    print(lines)
-    # Only edited if the route is better
-    greaterHeight = -1
-    betterStack = []
+def runBruteForceFixed(lines):
+    print ("Run the brute force algoritm")
+    # the lines format are:
+    # Largo (L), Ancho (W) y Altura (H)
+    # [
+    #     ['2', ' 3', ' 3'],
+    #     ['2', ' 4', ' 6'],
+    #     ['1', ' 1', ' 4']
+    # ]
+    blocks = getAllRotations(lines)
 
-    # indexKey = 0
-    # while (True):
-    #     # iterate all the array again but ignore the current index
+    # you don't need to do a multiplications, because you can reuse the block so have all the posible rotations in the same blocks list and 
+    # do the permutations to the all list
+    posibleStacks = (list(itertools.permutations(blocks)))
+    bestStack = []
+    bestHeight = 0
+    for stack in posibleStacks:
+        # start with the base height
+        currentHeight = stack[0][2]
+        currentStack = [stack[0]]
+        for i in range(0, len(stack) - 1):
+            # add the next block height, the current is already added
+            # if h and w greater then isValid = false and break
+            if (stack[i][0] <= stack[i+1][0] or stack[i][1] <= stack[i+1][1]) and (stack[i][0] <= stack[i+1][1] or stack[i][1] <= stack[i+1][0]):
+                # TODO: check if one extra rotations is needed for displaying purposes
+                break
+            # else-  sum the height
+            currentHeight += stack[i + 1][2]                
+            currentStack.append(stack[i + 1])
+        if currentHeight > bestHeight:
+            bestHeight = currentHeight
+            bestStack = currentStack
+    printAnswer(height=bestHeight, stack=bestStack)
+ 
 
-    #     indexKey += 1
+def maxArea(block):
+    return block[0] * block[1]
 
 
 def runDynamic(lines):
-    print(lines)
     print("Run dynamic programming algoritm")
+    # the lines format are:
+    # Largo (L), Ancho (W) y Altura (H)
+    # [
+    #     ['2', ' 3', ' 3'],
+    #     ['2', ' 4', ' 6'],
+    #     ['1', ' 1', ' 4']
+    # ]
+    permutations = getAllRotations(lines)
+    blocks = sorted(permutations, key=maxArea, reverse=True)
+    maxsHeights = []
+    routes = []
+    for i, block in enumerate(blocks):
+        maxsHeights.append(block[2])
+        routes.append(i)
 
+    for i in range(1, len(blocks)):
+        for j in range(0, i):
+            # Do the extra rotation in the x axis
+            if (blocks[i][0] < blocks[j][0] and blocks[i][1] < blocks[j][1]) \
+                or (blocks[i][0] < blocks[j][1] and blocks[i][1] < blocks[j][0]):
+                possibleNewHeight = maxsHeights[j] + blocks[i][2]
+                if possibleNewHeight > maxsHeights[i]:
+                    maxsHeights[i] = possibleNewHeight
+                    routes[i] = j
+
+    maxHeight = max(maxsHeights)
+    swap = maxsHeights.index(maxHeight)
+    finalStack = []
+    while True:
+        finalStack.insert(0,blocks[swap])
+        current = routes[swap]
+        if current == swap:
+            break
+        swap = current
+    printAnswer(height=maxHeight, stack=finalStack)
 
 # Run the project
-main()
+main() 
+
+ 
+ 
