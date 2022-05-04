@@ -67,7 +67,7 @@ def printHelp():
     print('\n')
 
 def printAnswer(height, stack):
-    print(f'\nOutput: altura máxima {BASH_COLORS.OKGREEN}{height}{BASH_COLORS.ENDC}.')
+    print(f'\nAltura máxima {BASH_COLORS.OKGREEN}{height}{BASH_COLORS.ENDC}.')
     print(f'Bloques: {BASH_COLORS.OKGREEN}{stack}.{BASH_COLORS.ENDC}\n')
 
 def getRotations(block):

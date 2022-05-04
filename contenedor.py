@@ -12,10 +12,10 @@
 # El algoritmo a correr debe ser indicado como parámetros en la linea de entrada del programa.
 # Con dos parámetros, el tipo de algoritmo a correr y el archivo con los datos del problema.
 
+import itertools
 import sys
 import os.path
 import time
-
 
 class BASH_COLORS:
     OKGREEN = '\033[92m'
@@ -23,6 +23,14 @@ class BASH_COLORS:
     FAIL = '\033[91m'
     ENDC = '\033[0m'
 
+class Articule:
+    def __init__(self, key, weight, value):
+        self.key = key
+        self.weight = weight
+        self.value = value
+
+    def show(self):
+        return f'({self.weight},{self.value}) '
 
 def main():
 
@@ -68,11 +76,60 @@ def printHelp():
     print(f'{BASH_COLORS.OKGREEN}python contenedor.py [algoritmo: 1 or 2] filename.txt{BASH_COLORS.ENDC}')
     print('\n')
 
-def printAnswer():
-    print('Answer')
+def printAnswer(h, bagStr):
+    # Output:
+    # Beneficio máximo: 162
+    # Incluidos: 3,4,5
+    print (f'\nBeneficio máximo: {BASH_COLORS.OKGREEN}{h}{BASH_COLORS.ENDC}.')
+    print (f'Incluidos: {BASH_COLORS.OKGREEN}{bagStr}{BASH_COLORS.ENDC}\n')
+
     
 def runBruteForce(lines):
-    print('Run brute force')    
+    print('Run brute force')
+    # To have a better control of what index use an obj so you store the index for when the answer is needed
+    # do all permutations, then check the valid permutations, and add the max value from that permutation 
+    # the max value is when the carry weight is >= container weight or if you are at the end of the list
+    # lines[0] - has the max weight
+    # lines[1:] - has the rest of the value pairs, make them objs so you can do the permutations
+    bagWeight = lines[0][0]
+    articules = []
+    for key, item in enumerate(lines[1:]):
+        articules.append(Articule(key, weight=item[0], value=item[1]))
+    
+    
+    permutations = (list(itertools.permutations(articules)))    
+    maxValues = []
+    
+    for per in permutations:
+        carryHeight = 0
+        carryValue = 0
+        for item in per:
+            # but you also need to remove the rest of the items if you are not in the last item of the per
+            newHeight = carryHeight + item.weight
+            if newHeight <= bagWeight:
+                carryHeight = newHeight
+                carryValue = carryValue + item.value
+            else:
+                break
+            #  make the sum if is valid add it if not then break
+        # add the current weight for this per
+        maxValues.append(carryValue)
+        
+
+    maxValue = max(maxValues)
+    idx = maxValues.index(maxValue)
+    maxH = 0
+    filledBag = ''
+
+    for item in permutations[idx]:
+        newHeight = maxH + item.weight
+        if newHeight <= bagWeight:
+            filledBag += articules[item.key].show()
+            maxH = newHeight
+        else:
+            break
+    printAnswer(h=maxValue,bagStr=filledBag)
+
 
 def runDynamic(lines):
     print('Run dynamic programming algoritm')
