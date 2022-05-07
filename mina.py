@@ -57,14 +57,16 @@ def printAnswer(value, routesStr):
     print (f'\nOutput : {value}')
     print (f'Ejemplo de selección de casillas: \n{routesStr}\n')
 
-def getTransposeMatrix(matrix):
+def getTransposeMatrix(matrix, isEmpty = False):
     numCols = len(matrix[0]) 
     cols = [[] for i in range(numCols)]
     for idxRow, row in enumerate(matrix):
         for i in range(numCols):
-            cols[i].append((row[i], idxRow))
+            if isEmpty:
+                cols[i].append((0, idxRow))
+            else: 
+                cols[i].append((row[i], idxRow))
     return cols
-
 
 def runBruteForce(lines):
     print('Run brute force')
@@ -110,14 +112,107 @@ def runBruteForce(lines):
 
     printAnswer(maxGold, finalRoutes)
 
-
 def runDynamic(lines):
     print('Run dynamic programming algoritm')
     # Do the cols for rows, then for each new row get the max possible add this max to the matrix of ans
     # do the same for the n new rows, then you can the route
+    # just need to resolve each n-1 -> n relationship, get the max item in the col n, 
+    # n-1 can go to top right, right or down right (top right or down right maybe don't exist because n-1 can be 
+    # placed in the top border or in the bottom border)
+    lenCols = len(lines[0])
+    lenRows = len(lines)
+    # create the matrix to store the possible routes and the carry gold
+    # [0] - has the gold
+    # [0] - the route to achieve this amount
+    posibleMaxValues = [[[0,[]] for i in range(lenCols)] for j in range(lenRows)]
+    
+    # iterate from bottom to top, ignore the first col because it doesn't have other col behind
+    for col in range(lenCols - 1, -1, -1):
+        for row in range(lenRows):
+            right = (0,0)
+            topRight = (0,0)
+            downRight = (0,0)
+
+            rightIndex = col + 1
+            if col != (lenCols - 1):
+                right = (posibleMaxValues[row][rightIndex][0], row)
+            # if you are in the border top
+            if row != 0 and col != lenCols - 1:
+                topRight = (posibleMaxValues[row - 1][rightIndex][0], row - 1)
+            # if you are in the border bottom
+            if row != lenRows - 1 and col != lenCols - 1:
+                downRight = (posibleMaxValues[row + 1][rightIndex][0], row + 1)
+  
+            # Max from right vals
+            # TODO: missing when is hte same there are more than 1 possible max
+            posibleSteps = [right, topRight, downRight]
+            maxRight = max(posibleSteps, key=maxValue)
+
+            setpsWithMax = list(filter(lambda step: step[0] == maxRight[0], posibleSteps))
+            # print ("====")
+            # print (setpsWithMax)
+            # print ("====")
+
+            # iterate for the 3 items to search the if is unique or n
+            posibleMaxValues[row][col][0] = lines[row][col] + maxRight[0]
+            # if there are more than 1 then a new three is made, copy the current list the n times and for each
+            # item in maxes insert the max in the bifurcacion
+            # if there isn't lists in posibleMaxValues[row][0])[1]
+            if right != (0,0):
+                savedRoutesForRow = (posibleMaxValues[row][0])[1]
+                if len(savedRoutesForRow) == 0:
+                    # then create as new one for each steps with max 
+                    for newStep in setpsWithMax:
+                        # insert a new list with the step
+                        # print (newStep)
+                        savedRoutesForRow.append([newStep])
+                    # (posibleMaxValues[row][0])[1].insert(0,(lines[maxRight[1]][col], maxRight[1]))
+                    (posibleMaxValues[row][0])[1] = savedRoutesForRow
+                    print (savedRoutesForRow)
+                    print ('++++++++++++')
+                else:
+                    # [[(15, 1)], [(15, 0)]]]
+                    currentRoutes = savedRoutesForRow.copy()
+                    print ("====")
+                    print (currentRoutes)
+                    print (setpsWithMax)
+                    print ("====")
+                    newTotal = []
+                    # # if there are already lists in there, for each list append each steps with max
+                    for current in currentRoutes:
+                        for newStep in setpsWithMax:
+                            temp = current.copy()
+                            # print (temp)
+                            # print (lines[newStep[1]][col])
+                            temp.insert(0,(lines[newStep[1]][col], newStep[1]))
+                            newTotal.append(temp)
+                    (posibleMaxValues[row][0])[1] = newTotal
+                    # for newStep in posibleSteps:
+                    # print (newTotal)
+                    # (posibleMaxValues[row][0])[1].insert(0,(lines[maxRight[1]][col], maxRight[1]))
+            
+    # print (posibleMaxValues)                                 
+    # The max possible value is in one of the rows in the 1st column
+    # res = posibleMaxValues[0][0][0]
+    bestIndexes = [0]
+    for i in range(1, lenRows):
+        # print (posibleMaxValues[i][0])
+        if posibleMaxValues[i][0][0] > posibleMaxValues[bestIndexes[0]][0][0]:
+            bestIndexes = [i]
+        elif posibleMaxValues[i][0][0] == posibleMaxValues[bestIndexes[0]][0][0]:
+            bestIndexes.append(i)
+    print ("===")
+    print (bestIndexes)
+    for i in range(lenRows):
+        print (posibleMaxValues[i][0])
+    
+    # print (ans)
+
+def maxValue(tuple):
+    return tuple[0]
 
 
 # Run the project
-main() 
+main()
 
  
