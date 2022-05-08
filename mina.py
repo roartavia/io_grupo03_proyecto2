@@ -7,6 +7,7 @@
 # Se deben programar dos versiones del algoritmos, el primero es fuerza bruta.
 
 import itertools
+from select import select
 import sys
 import os.path
 import time
@@ -148,49 +149,47 @@ def runDynamic(lines):
             posibleSteps = [right, topRight, downRight]
             maxRight = max(posibleSteps, key=maxValue)
 
-            setpsWithMax = list(filter(lambda step: step[0] == maxRight[0], posibleSteps))
-            # print ("====")
-            # print (setpsWithMax)
-            # print ("====")
-
-            # iterate for the 3 items to search the if is unique or n
+        
             posibleMaxValues[row][col][0] = lines[row][col] + maxRight[0]
-            # if there are more than 1 then a new three is made, copy the current list the n times and for each
-            # item in maxes insert the max in the bifurcacion
-            # if there isn't lists in posibleMaxValues[row][0])[1]
-            if right != (0,0):
-                savedRoutesForRow = (posibleMaxValues[row][0])[1]
-                if len(savedRoutesForRow) == 0:
-                    # then create as new one for each steps with max 
-                    for newStep in setpsWithMax:
-                        # insert a new list with the step
-                        # print (newStep)
-                        savedRoutesForRow.append([newStep])
-                    # (posibleMaxValues[row][0])[1].insert(0,(lines[maxRight[1]][col], maxRight[1]))
-                    (posibleMaxValues[row][0])[1] = savedRoutesForRow
-                    print (savedRoutesForRow)
-                    print ('++++++++++++')
-                else:
-                    # [[(15, 1)], [(15, 0)]]]
-                    currentRoutes = savedRoutesForRow.copy()
-                    print ("====")
-                    print (currentRoutes)
-                    print (setpsWithMax)
-                    print ("====")
-                    newTotal = []
-                    # # if there are already lists in there, for each list append each steps with max
-                    for current in currentRoutes:
-                        for newStep in setpsWithMax:
-                            temp = current.copy()
-                            # print (temp)
-                            # print (lines[newStep[1]][col])
-                            temp.insert(0,(lines[newStep[1]][col], newStep[1]))
-                            newTotal.append(temp)
-                    (posibleMaxValues[row][0])[1] = newTotal
-                    # for newStep in posibleSteps:
-                    # print (newTotal)
-                    # (posibleMaxValues[row][0])[1].insert(0,(lines[maxRight[1]][col], maxRight[1]))
+
+            # we are doing this wrong, you need to copy all the route of the max position, and not 
+            # build in the col 0, you need for the current col copy the n better rroute in col prev, not only the 
+            # prev pos - is all the route
+            if right == (0,0):
+                # add the route 
+                posibleMaxValues[row][col][1] = [[row]]
+            else: 
+                # Now that you have the carry result, start adding the routes to get there
+                setpsWithMax = list(filter(lambda step: step[0] == maxRight[0], posibleSteps))
+                # this have the better index in 
+                # septs[1] so for each step get the index and this is going to be 
+                newRoutes = []
+                # [col] product the prev selected?
+                newStep = [row]
+                
+
+
+                for step in setpsWithMax:
+                    print (newStep)
+                    print (posibleMaxValues[step[1]][col+1][1])
+
+                    newOption = [list(p) for p in itertools.product(newStep, posibleMaxValues[step[1]][col+1][1])]
+                    # newOption = [for item ] list()
+                    print (newOption)
+                    newRoutes.append(newOption)
+                print ("==========")
+                print ("==========")
+                print (newRoutes)
+                print ("==========")
+                print ("==========")
+                
+                posibleMaxValues[row][col][1] = newRoutes
+                # select the best possible rows
+
+
             
+
+    # then for each row you can add the i in the possible values
     # print (posibleMaxValues)                                 
     # The max possible value is in one of the rows in the 1st column
     # res = posibleMaxValues[0][0][0]
