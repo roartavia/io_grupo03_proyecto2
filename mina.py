@@ -7,7 +7,6 @@
 # Se deben programar dos versiones del algoritmos, el primero es fuerza bruta.
 
 import itertools
-from select import select
 import sys
 import os.path
 import time
