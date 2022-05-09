@@ -69,6 +69,8 @@ def getTransposeMatrix(matrix, isEmpty = False):
                 cols[i].append((row[i], idxRow))
     return cols
 
+# TODO: Fix the brute force to gice the # of the row instead of the value so it matches the final ans of the 
+# DP problem
 def runBruteForce(lines):
     print('Run brute force')
     # Basically is a multiplications of arrays, each needed correspond to 
@@ -145,13 +147,10 @@ def runDynamic(lines):
                 downRight = (posibleMaxValues[row + 1][rightIndex][0], row + 1)
   
             # Max from right vals
-            # TODO: missing when is hte same there are more than 1 possible max
             posibleSteps = [right, topRight, downRight]
             maxRight = max(posibleSteps, key=maxValue)
 
-        
             posibleMaxValues[row][col][0] = lines[row][col] + maxRight[0]
-
             # we are doing this wrong, you need to copy all the route of the max position, and not 
             # build in the col 0, you need for the current col copy the n better rroute in col prev, not only the 
             # prev pos - is all the route
@@ -166,50 +165,40 @@ def runDynamic(lines):
                 newRoutes = []
                 # [col] product the prev selected?
                 newStep = [row]
-                
-
-
                 for step in setpsWithMax:
-                    print (newStep)
-                    print (posibleMaxValues[step[1]][col+1][1])
-
-                    newOption = [list(p) for p in itertools.product(newStep, posibleMaxValues[step[1]][col+1][1])]
-                    # newOption = [for item ] list()
-                    print (newOption)
-                    newRoutes.append(newOption)
-                print ("==========")
-                print ("==========")
-                print (newRoutes)
-                print ("==========")
-                print ("==========")
+                    prevRoutes = posibleMaxValues[step[1]][col+1][1]
+                    for prevRoute in prevRoutes:
+                        t = newStep + prevRoute
+                        newRoutes.append(t)
                 
                 posibleMaxValues[row][col][1] = newRoutes
                 # select the best possible rows
 
-
-            
-
-    # then for each row you can add the i in the possible values
-    # print (posibleMaxValues)                                 
+    # then for each row you can add the i in the possible values     
     # The max possible value is in one of the rows in the 1st column
-    # res = posibleMaxValues[0][0][0]
     bestIndexes = [0]
     for i in range(1, lenRows):
-        # print (posibleMaxValues[i][0])
         if posibleMaxValues[i][0][0] > posibleMaxValues[bestIndexes[0]][0][0]:
             bestIndexes = [i]
         elif posibleMaxValues[i][0][0] == posibleMaxValues[bestIndexes[0]][0][0]:
             bestIndexes.append(i)
-    print ("===")
-    print (bestIndexes)
-    for i in range(lenRows):
-        print (posibleMaxValues[i][0])
-    
-    # print (ans)
+    finalRoutes = ''
+
+    for i in bestIndexes:
+        for route in posibleMaxValues[i][0][1]:
+            strRoute = f'({route[0]}, 0)'
+            
+            for stepIdx in range(1,len(route)):
+                strRoute += f' -> ({route[stepIdx]}, {stepIdx})' 
+
+            if finalRoutes == '':
+                finalRoutes = strRoute
+            else: 
+                finalRoutes = f'{finalRoutes} OR \n{strRoute}' 
+    printAnswer(posibleMaxValues[bestIndexes[0]][0][0], finalRoutes)
 
 def maxValue(tuple):
     return tuple[0]
-
 
 # Run the project
 main()
