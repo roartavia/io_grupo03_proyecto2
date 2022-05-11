@@ -50,6 +50,7 @@ def main():
         f'{BASH_COLORS.FAIL}Tiempo de ejecución: {"{:.8f}".format(time.time() - startTime)} segundos.{BASH_COLORS.ENDC}\n')
 
 def printAnswer(value, routesStr):
+    print ("WTF?")
     # Output : 16
     # Ejemplo de selección de casillas:
     # (2,0) -> (1,1) -> (1,2) -> (0,3) OR

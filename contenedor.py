@@ -26,6 +26,7 @@ class Articule:
         self.value = value
 
     def show(self):
+        # TODO: change to only have the index 
         return f'({self.weight},{self.value}) '
 
 def main():
@@ -56,8 +57,7 @@ def main():
         matrix.append(row)
     # Start exc
     startTime = time.time()
-    if mode == '1':
-        # brute force
+    if mode == '1':        
         runBruteForce(matrix)
     else:
         runDynamic(matrix)
@@ -109,7 +109,10 @@ def runBruteForce(lines):
     for item in permutations[idx]:
         newHeight = maxH + item.weight
         if newHeight <= bagWeight:
+            # Context answ
             filledBag += articules[item.key].show()
+            # PDF answer
+            # filledBag += str(item.key + 1) + ", "
             maxH = newHeight
         else:
             break
@@ -117,7 +120,52 @@ def runBruteForce(lines):
 
 def runDynamic(lines):
     print('Run dynamic programming algoritm')
+    # Pseudo code
+    # V = [[0 for i in range(bagWeight)] for j in range(len(articules))]
 
+    # for k in range(0, len(articules)):
+    #     for w in range(bagWeight):
+    #         if articules[k].weight > w:
+    #             V[k][w] = V[k - 1][w]
+    #         else:
+    #             if articules[k].value + V[k - 1][w - articules[k].weight] > V[k - 1][w]:
+    #                 V[k][w] = articules[k].value + V[k - 1][w - articules[k].weight]
+    #             else:
+    #                 V[k][w] = V[k - 1][w]
+    # lines[0] - has the max weight
+    # lines[1:] - has the rest of the value pairs, make them objs so you can do the permutations
+    bagWeight = lines[0][0]
+    articules = []
+    for key, item in enumerate(lines[1:]):
+        articules.append(Articule(key, weight=item[0], value=item[1]))
+
+    dpMatrix = [[[0,[]] for i in range(bagWeight + 1)] for j in range(len(articules) + 1)]
+ 
+    for i in range(len(articules) + 1):
+        for w in range(bagWeight + 1):
+            if i != 0 and w != 0:
+                if articules[i-1].weight <= w and i != 0 and w != 0:
+                    (dpMatrix[i][w])[0] = max(articules[i - 1].value + (dpMatrix[i - 1][w - articules[i - 1].weight])[0], (dpMatrix[i - 1][w])[0])
+                    currentValue = articules[i - 1].value + (dpMatrix[i - 1][w - articules[i - 1].weight])[0]
+                    if currentValue > (dpMatrix[i - 1][w])[0]:
+                        # Add the new art to the bag
+                        (dpMatrix[i][w])[1] = (dpMatrix[i - 1][w - articules[i - 1].weight])[1] + [articules[i - 1]]
+                        (dpMatrix[i][w])[0] = currentValue
+                    else:
+                        (dpMatrix[i][w])[1] = (dpMatrix[i - 1][w])[1]
+                        (dpMatrix[i][w])[0] = currentValue
+                else:
+                    (dpMatrix[i][w])[0] = (dpMatrix[i - 1][w])[0]
+                    # Move the route
+                    (dpMatrix[i][w])[1] = (dpMatrix[i - 1][w])[1]
+    
+    maxValue = dpMatrix[len(articules)][bagWeight][0]
+    col = dpMatrix[len(articules)][bagWeight][1]
+    ans = col[0].show()
+    for i in range(1, len(col)):
+        a = col[i]
+        ans = f'{ans}{a.show()}'
+    printAnswer(h=maxValue,bagStr=ans)
 # Run the project
 main() 
 
