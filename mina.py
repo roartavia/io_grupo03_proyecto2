@@ -108,11 +108,23 @@ def runBruteForce(lines):
                 maxIndexes.append(i)
             elif stepsTotal == maxGold:
                 maxIndexes.append(i)
-    finalRoutes = str(permutations[maxIndexes[0]]).replace("),", ") ->")
-    for i in range(1,len(maxIndexes)):
-        finalRoutes += f' OR \n{str(permutations[maxIndexes[i]]).replace("),", ") ->")}'
+    
+    finalRoutes1 = ''
+    for i in range(0,len(maxIndexes)):
+        r = permutations[maxIndexes[i]]
+        rStr = f'({r[0][1]}, 0)'
+        for stepIdx in range(1, len(r)):
+            rStr += f' -> ({r[stepIdx][1]}, {stepIdx})'
+        if i == 0:
+            finalRoutes1 = rStr
+        else:
+            finalRoutes1 += f' OR \n{rStr}'
 
-    printAnswer(maxGold, finalRoutes)
+    # finalRoutes = str(permutations[maxIndexes[0]]).replace("),", ") ->")
+    # for i in range(1,len(maxIndexes)):
+    #     finalRoutes += f' OR \n{str(permutations[maxIndexes[i]]).replace("),", ") ->")}'
+
+    printAnswer(maxGold, finalRoutes1)
 
 def runDynamic(lines):
     print('Run dynamic programming algoritm')

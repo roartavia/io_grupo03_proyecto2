@@ -8,6 +8,12 @@ Proyecto 2: Desempeño de Programación Dinámica
 ```
 [mode]: 1 (brute force) or 2 (dynamic programming)
 
+### Mina
+``` 
+    python mina.py [-h] [mode] [testCase.txt]
+```
+[mode]: 1 (brute force) or 2 (dynamic programming)
+
 ### Bloques
 ``` 
     python bloques.py [-h] [mode] [testCase.txt]
