@@ -26,8 +26,8 @@ class Articule:
         self.value = value
 
     def show(self):
-        # TODO: change to only have the index 
-        return f'({self.weight},{self.value}) '
+        # return f'({self.weight},{self.value}) '
+        return f'{self.key + 1}, '
 
 def main():
 
@@ -166,6 +166,7 @@ def runDynamic(lines):
         a = col[i]
         ans = f'{ans}{a.show()}'
     printAnswer(h=maxValue,bagStr=ans)
+
 # Run the project
 main() 
 
