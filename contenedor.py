@@ -4,15 +4,6 @@ import os.path
 import time
 from helper import BASH_COLORS, printHelp
 
-class Articule:
-    def __init__(self, key, weight, value):
-        self.key = key
-        self.weight = weight
-        self.value = value
-
-    def show(self):
-        return f'{self.key + 1}, '
-
 def main():
     if len(sys.argv) <= 1:
         printHelp('contenedor')
@@ -47,91 +38,81 @@ def main():
         f'{BASH_COLORS.FAIL}Tiempo de ejecución: {"{:.8f}".format(time.time() - startTime)} segundos.{BASH_COLORS.ENDC}\n')
 
 
-def printAnswer(h, bagStr):
-    print(f'\nBeneficio máximo: {BASH_COLORS.OKGREEN}{h}{BASH_COLORS.ENDC}.')
-    print(f'Incluidos: {BASH_COLORS.OKGREEN}{bagStr}{BASH_COLORS.ENDC}\n')
+def printAnswer(profits,solution):
+    for i in range(0, len(profits)):
+        auxSum = profits[i]
+        auxArray = []
+        auxArray.append(i+1)
+        for j in range(i + 1, len(profits)):
+            auxSum = profits[j] + auxSum
+            auxArray.append(j+1)
+            if auxSum == solution:
+                return auxArray
 
+
+def containerBruteForce(bagWeight, weights, profits, len):
+    #Base case
+    if len == 0 or bagWeight == 0:
+        return 0
+
+    #if weight on n item is more than the bag
+    #cannot be included
+    if (weights[len - 1] > bagWeight):
+        return knapSackBF(bagWeight, weights, profits, len - 1)
+
+    #return max of n item included
+    else:
+        return max(profits[len - 1] + knapSackBF(bagWeight - weights[len - 1], weights, profits, len - 1),
+                   knapSackBF(bagWeight, weights, profits, len - 1))
+
+
+def containerDynamicProgramming(bagWeight, weights, profits, len):
+    dp = [0 for i in range(bagWeight + 1)]  # Making the array
+
+    for i in range(1, len + 1):  # taking first i elements
+        for j in range(bagWeight, 0, -1):  # starting from back,so that we also have data of
+                                           # previous computation when taking i-1 items
+            if weights[i - 1] <= j:
+                # finding the maximum value
+                dp[j] = max(dp[j], dp[j - weights[i - 1]] + profits[i - 1])
+
+    return dp[bagWeight]  # returning the maximum value of knapsack
 
 def runBruteForce(lines):
     print('Run brute force')
 
     # bagWeight always first line
     bagWeight = lines[0][0]
-    articules = []
-    #adds every articule in an array
-    for key, item in enumerate(lines[1:]): #articules goes second line onwards
-        articules.append(Articule(key, weight=item[0], value=item[1]))
+    weights = []
+    profits = []
 
-    permutations = (list(itertools.permutations(articules)))
-    maxValues = []
+    # articules goes second line onwards
+    for key, item in enumerate(lines[1:]):
+        weights.append(item[0])
+        profits.append(item[1])
 
-    for per in permutations:
-        carryHeight = 0
-        carryValue = 0
-        for item in per:
-            newHeight = carryHeight + item.weight
-            #if the item weight is valid
-            if newHeight <= bagWeight:
-                carryHeight = newHeight
-                carryValue = carryValue + item.value
-            else:
-                break
-
-        maxValues.append(carryValue)
-
-    maxValue = max(maxValues)
-    idx = maxValues.index(maxValue)
-    maxH = 0
-    filledBag = ''
-
-    for item in permutations[idx]:
-        newHeight = maxH + item.weight
-        if newHeight <= bagWeight:
-            filledBag += articules[item.key].show()
-            maxH = newHeight
-        else:
-            break
-    printAnswer(h=maxValue, bagStr=filledBag)
+    solution = containerBruteForce(bagWeight, weights, profits, len(profits))
+    print("Output:")
+    print("Beneficio máximo: ",solution)
+    print("Inlcuidos: ",printAnswer(profits, solution))
 
 
 def runDynamic(lines):
     print('Run dynamic programming algorithm')
 
-    #bagWeight always first line
+    # bagWeight always first line
     bagWeight = lines[0][0]
-    articules = []
+    weights = []
+    profits = []
 
-    #adds every articule in an array of object Article(weight,value)
-    for key, item in enumerate(lines[1:]): #articules goes second line onwards
-        articules.append(Articule(key, weight=item[0], value=item[1]))
+    # articules goes second line onwards
+    for key, item in enumerate(lines[1:]):
+        weights.append(item[0])
+        profits.append(item[1])
 
-    dpMatrix = [[[0, []] for i in range(bagWeight + 1)] for j in range(len(articules) + 1)]
-
-    for i in range(len(articules) + 1):
-        for w in range(bagWeight + 1):
-            if i != 0 and w != 0:
-                if articules[i - 1].weight <= w != 0 and i != 0:
-                    (dpMatrix[i][w])[0] = max(
-                        articules[i - 1].value + (dpMatrix[i - 1][w - articules[i - 1].weight])[0],
-                        (dpMatrix[i - 1][w])[0])
-                    currentValue = articules[i - 1].value + (dpMatrix[i - 1][w - articules[i - 1].weight])[0]
-                    if currentValue > (dpMatrix[i - 1][w])[0]:
-                        #add articule
-                        (dpMatrix[i][w])[1] = (dpMatrix[i - 1][w - articules[i - 1].weight])[1] + [articules[i - 1]]
-                        (dpMatrix[i][w])[0] = currentValue
-                    else:
-                        (dpMatrix[i][w])[1] = (dpMatrix[i - 1][w])[1]
-                        (dpMatrix[i][w])[0] = currentValue
-                else:
-                    (dpMatrix[i][w])[0] = (dpMatrix[i - 1][w])[0]
-                    (dpMatrix[i][w])[1] = (dpMatrix[i - 1][w])[1]
-                    
-    maxValue = dpMatrix[len(articules)][bagWeight][0]
-    col = dpMatrix[len(articules)][bagWeight][1]
-    ans = col[0].show()
-    for i in range(1, len(col)):
-        a = col[i]
-        ans = f'{ans}{a.show()}'
-    printAnswer(h=maxValue, bagStr=ans)
+    solution = containerDynamicProgramming(bagWeight, weights, profits, len(profits))
+    print("Output:")
+    print("Beneficio máximo: ", solution)
+    print("Inlcuidos: ", printAnswer(profits, solution))
 
 main()
