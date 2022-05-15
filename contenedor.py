@@ -4,7 +4,6 @@ import os.path
 import time
 from helper import BASH_COLORS, printHelp
 
-
 class Articule:
     def __init__(self, key, weight, value):
         self.key = key
@@ -13,7 +12,6 @@ class Articule:
 
     def show(self):
         return f'{self.key + 1}, '
-
 
 def main():
     if len(sys.argv) <= 1:
@@ -57,9 +55,11 @@ def printAnswer(h, bagStr):
 def runBruteForce(lines):
     print('Run brute force')
 
+    # bagWeight always first line
     bagWeight = lines[0][0]
     articules = []
-    for key, item in enumerate(lines[1:]):
+    #adds every articule in an array
+    for key, item in enumerate(lines[1:]): #articules goes second line onwards
         articules.append(Articule(key, weight=item[0], value=item[1]))
 
     permutations = (list(itertools.permutations(articules)))
@@ -70,11 +70,13 @@ def runBruteForce(lines):
         carryValue = 0
         for item in per:
             newHeight = carryHeight + item.weight
+            #if the item weight is valid
             if newHeight <= bagWeight:
                 carryHeight = newHeight
                 carryValue = carryValue + item.value
             else:
                 break
+
         maxValues.append(carryValue)
 
     maxValue = max(maxValues)
@@ -85,9 +87,7 @@ def runBruteForce(lines):
     for item in permutations[idx]:
         newHeight = maxH + item.weight
         if newHeight <= bagWeight:
-            # Context answ
             filledBag += articules[item.key].show()
-            # PDF answer
             maxH = newHeight
         else:
             break
@@ -97,10 +97,12 @@ def runBruteForce(lines):
 def runDynamic(lines):
     print('Run dynamic programming algorithm')
 
+    #bagWeight always first line
     bagWeight = lines[0][0]
     articules = []
 
-    for key, item in enumerate(lines[1:]):
+    #adds every articule in an array of object Article(weight,value)
+    for key, item in enumerate(lines[1:]): #articules goes second line onwards
         articules.append(Articule(key, weight=item[0], value=item[1]))
 
     dpMatrix = [[[0, []] for i in range(bagWeight + 1)] for j in range(len(articules) + 1)]
@@ -114,6 +116,7 @@ def runDynamic(lines):
                         (dpMatrix[i - 1][w])[0])
                     currentValue = articules[i - 1].value + (dpMatrix[i - 1][w - articules[i - 1].weight])[0]
                     if currentValue > (dpMatrix[i - 1][w])[0]:
+                        #add articule
                         (dpMatrix[i][w])[1] = (dpMatrix[i - 1][w - articules[i - 1].weight])[1] + [articules[i - 1]]
                         (dpMatrix[i][w])[0] = currentValue
                     else:
@@ -122,14 +125,13 @@ def runDynamic(lines):
                 else:
                     (dpMatrix[i][w])[0] = (dpMatrix[i - 1][w])[0]
                     (dpMatrix[i][w])[1] = (dpMatrix[i - 1][w])[1]
+                    
     maxValue = dpMatrix[len(articules)][bagWeight][0]
     col = dpMatrix[len(articules)][bagWeight][1]
     ans = col[0].show()
     for i in range(1, len(col)):
         a = col[i]
         ans = f'{ans}{a.show()}'
-    print(Answer(h=maxValue, bagStr=ans))
+    printAnswer(h=maxValue, bagStr=ans)
 
-
-# Run the project
 main()
