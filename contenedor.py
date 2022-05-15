@@ -58,12 +58,12 @@ def containerBruteForce(bagWeight, weights, profits, len):
     #if weight on n item is more than the bag
     #cannot be included
     if (weights[len - 1] > bagWeight):
-        return knapSackBF(bagWeight, weights, profits, len - 1)
+        return containerBruteForce(bagWeight, weights, profits, len - 1)
 
     #return max of n item included
     else:
-        return max(profits[len - 1] + knapSackBF(bagWeight - weights[len - 1], weights, profits, len - 1),
-                   knapSackBF(bagWeight, weights, profits, len - 1))
+        return max(profits[len - 1] + containerBruteForce(bagWeight - weights[len - 1], weights, profits, len - 1),
+                   containerBruteForce(bagWeight, weights, profits, len - 1))
 
 
 def containerDynamicProgramming(bagWeight, weights, profits, len):
@@ -79,7 +79,7 @@ def containerDynamicProgramming(bagWeight, weights, profits, len):
     return dp[bagWeight]  # returning the maximum value of knapsack
 
 def runBruteForce(lines):
-    print('Run brute force')
+    print('Run brute force\n')
 
     # bagWeight always first line
     bagWeight = lines[0][0]
@@ -98,7 +98,7 @@ def runBruteForce(lines):
 
 
 def runDynamic(lines):
-    print('Run dynamic programming algorithm')
+    print('Run dynamic programming algorithm\n')
 
     # bagWeight always first line
     bagWeight = lines[0][0]
