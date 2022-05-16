@@ -68,8 +68,7 @@ def getTransposeMatrix(matrix, isEmpty = False):
                 cols[i].append((row[i], idxRow))
     return cols
 
-# TODO: Fix the brute force to gice the # of the row instead of the value so it matches the final ans of the 
-# DP problem
+
 def runBruteForce(lines):
     print('Run brute force')
     # Basically is a multiplications of arrays, each needed correspond to 
@@ -213,5 +212,3 @@ def maxValue(tuple):
 
 # Run the project
 main()
-
- 
