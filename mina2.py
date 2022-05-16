@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from distutils.command.build_scripts import first_line_re
+from operator import truediv
 from unittest import result
 from helper import BASH_COLORS, printHelp
 import itertools
@@ -37,18 +39,17 @@ def main():
     startTime = time.time()
     if mode == '1':
         # brute force
-        Dynamic(matrix)
+        Brute(matrix)
     else:
         Dynamic(matrix)
     print(
         f'{BASH_COLORS.FAIL}Tiempo de ejecución: {"{:.8f}".format(time.time() - startTime)} segundos.{BASH_COLORS.ENDC}\n')
 def Dynamic(matrix):
-      #Largo rows
     rows = len(matrix)
-    #Largo columns
     columns = len(matrix[0])
     result=baseDimn(matrix,rows, columns)
     printAnswer(result[0],result[1])
+# the recursion is started where the best candidate of each column is searched step by step
 def baseDimn(matrix, rows, columns):
     col=columns-1
     aux=0
@@ -72,6 +73,7 @@ def baseDimn(matrix, rows, columns):
         if(route[0]==solutioninit[0] and route[1]!=solutioninit[1] ):
             solutioninit[1]+= (" OR \n"+route[1])
     return solutioninit
+#It parses the requested inputs that are right up, right down, and right
 def auxDinm(matrix,i,j,list):
     if j==len(matrix[0]) or i<0 or i>len(matrix)-1:
         return [0,"",list]
@@ -97,4 +99,64 @@ def printAnswer(value, routesStr):
     # (2,0) -> (3,1) -> (2,2) -> (2,3)
     print (f'\nOutput : {value}')
     print (f'Ejemplo de selección de casillas: \n{routesStr}\n')
+def getTransposeMatrix(matrix, isEmpty = False):
+    numCols = len(matrix[0]) 
+    cols = [[] for i in range(numCols)]
+    for idxRow, row in enumerate(matrix):
+        for i in range(numCols):
+            if isEmpty:
+                cols[i].append((0, idxRow))
+            else: 
+                cols[i].append((row[i], idxRow))
+    return cols
+
+def Brute(matrix):
+    mAux=[]
+    mAux=getTransposeMatrix(matrix)
+    permutations = list(itertools.product(*mAux))
+    oroMax=0
+    auxpasos=[]
+    rufin=''
+    for i, per in enumerate(permutations):
+        isValid = True
+        stepsTotal = 0
+        # You need to check first if you can go from this index to the next step
+        for j,step in enumerate(per):
+            # if index is -1 or +1 of prev then is a valid move 
+            if j != 0:
+                if step[1] - 1 == per[j - 1][1] or step[1] + 1 == per[j - 1][1] or step[1] == per[j - 1][1]:
+                    stepsTotal += step[0]
+                else:
+                    isValid = False
+                    break
+            else:
+                stepsTotal += step[0]
+        if(stepsTotal>=oroMax and isValid):
+            oroMax=stepsTotal
+            auxpasos.append([oroMax,per])
+    first=True
+    for rut in auxpasos:
+        sRut=''
+        if(rut[0]==oroMax):
+            if (first==True):
+                first=False
+            else:
+                sRut+=' OR \n'
+            aux=True
+            for cont,step in enumerate(rut[1]):
+                sRut+= f'( {step[1]} , {cont} )'
+                if(cont==len(rut[1])-1):
+                    aux=False
+                if (aux):
+                    sRut+=' - > '
+            rufin+=sRut
+    printAnswer(oroMax,rufin)
+
+
+
+
+
+
+
+    return True
 main()
