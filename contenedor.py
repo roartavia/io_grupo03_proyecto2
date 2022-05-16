@@ -112,7 +112,7 @@ def runDynamic(lines):
     solution = containerDynamicProgramming(bagWeight, weights, profits, len(profits))
     print("Output:")
     print("Beneficio máximo: ", solution)
-    print("Inlcluidos: ", printAnswer(profits, solution))
+    print("Incluidos: ", printAnswer(profits, solution))
 
 
 main()
